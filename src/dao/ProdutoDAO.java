@@ -12,31 +12,30 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Cliente;
+import model.Produto;
 
 /**
  *
  * @author andre_000
  */
-public class ClienteDAO {
-
+public class ProdutoDAO {
+    
     private Connection con = null;
     private PreparedStatement pst = null;
     private ResultSet rs = null;
 
-    public int insert(Cliente reg) {
+    public int insert(Produto reg) {
         int codigo = 0;
         StringBuilder sql = new StringBuilder();
-        sql.append("INSERT INTO Cliente ");
-        sql.append("(CPF,Nome,Celular,Email) ");
-        sql.append("VALUES(?,?,?,?)");
+        sql.append("INSERT INTO Produto ");
+        sql.append("(Descricao,Qtde,CustoMedio) ");
+        sql.append("VALUES(?,?,?)");
         try {
             con = ConnectionFactory.getConnection();
             pst = con.prepareStatement(sql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
-            pst.setString(1, reg.getCpf());
-            pst.setString(2, reg.getNome());
-            pst.setString(3, reg.getCelular());
-            pst.setString(4, reg.getEmail());
+            pst.setString(1, reg.getDescricao());
+            pst.setInt(2, reg.getQtde());
+            pst.setDouble(3, reg.getCustoMedio());
             pst.executeUpdate();
             rs = pst.getGeneratedKeys();
             if (rs.next()) {
@@ -49,29 +48,28 @@ public class ClienteDAO {
         }
         return codigo;
 
+    }    
+    
+    public List<Produto> selectAll(){
+        return (selectAll("Descricao"));
     }
     
-    public List<Cliente> selectAll(){
-        return (selectAll("Nome"));
-    }
-    
-    public List<Cliente> selectAll(String ordem){
-        List<Cliente> lista = new ArrayList<Cliente>();
+      public List<Produto> selectAll(String ordem){
+        List<Produto> lista = new ArrayList<Produto>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT Codigo,CPF,Nome,Celular,Email FROM Cliente ");
+        sql.append("SELECT Codigo,Descricao,Qtde,CustoMedio FROM Produto ");
         sql.append("ORDER BY ? ");
         try {
             con = ConnectionFactory.getConnection();
             pst = con.prepareStatement(sql.toString());
-            pst.setString(1,ordem);
+            pst.setString(1, ordem);
             rs = pst.executeQuery();
             while (rs.next()) {
                 int rsCodigo = rs.getInt("Codigo");
-                String rsCPF = rs.getString("CPF");
-                String rsNome = rs.getString("Nome");
-                String rsCelular = rs.getString("Celular");
-                String rsEmail = rs.getString("Email");
-                Cliente c = new Cliente(rsCodigo,rsCPF,rsNome,rsCelular,rsEmail);
+                String rsDescricao = rs.getString("Descricao");
+                int rsQtde = rs.getInt("Qtde");
+                double rsCustoMedio = rs.getDouble("CustoMedio");
+                Produto c = new Produto(rsCodigo,rsDescricao,rsQtde,rsCustoMedio);
                 lista.add(c);
             }
         } catch (SQLException ex) {

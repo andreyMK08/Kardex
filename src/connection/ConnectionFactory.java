@@ -2,6 +2,8 @@ package connection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ConnectionFactory {
@@ -10,18 +12,37 @@ public class ConnectionFactory {
     private static final String USER = "root";
     private static final String PASS = "Andrey@08012001";
 
-    public static Connection getConnection(){
+    public static Connection getConnection() {
         try {
-            return DriverManager.getConnection(URL,USER,PASS);
+            return DriverManager.getConnection(URL, USER, PASS);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
-    
 
-    public static void closeConnection(Connection con) {
+     public static void closeConnection(Connection con) {
         try {
-            if(con != null) con.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static void closeConnection(Connection con, PreparedStatement pst) {
+        try {
+            if (pst != null) {
+                pst.close();
+            }
+            closeConnection(con);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static void closeConnection(Connection con, PreparedStatement pst, ResultSet rs) {
+        try {
+            if (rs != null) rs.close(); 
+                closeConnection(con,pst);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
         }

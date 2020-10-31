@@ -1,5 +1,9 @@
 package model;
 
+import dao.FornecedorDAO;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+
 
 public class Fornecedor {
     
@@ -8,12 +12,24 @@ public class Fornecedor {
     private String nome;
     private String telefone;
     private String email;
+    
+     public Fornecedor(String cnpj, String nome, String telefone, String email) {
+         this(0,cnpj,nome,telefone,email);
+    }
 
-    public Fornecedor(String cnpj, String nome, String telefone, String email) {
+    public Fornecedor(int codigo, String cnpj, String nome, String telefone, String email) {
+        setCodigo(codigo);
         setCnpj(cnpj);
         setNome(nome);
         setTelefone(telefone);
         setEmail(email);
+    }
+    
+    public int gravarFornecedor(){
+        FornecedorDAO dao = new FornecedorDAO();
+        int id = dao.insert(this);
+        setCodigo(id);
+        return (id);
     }
     
     public int getCodigo() {
@@ -54,6 +70,22 @@ public class Fornecedor {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    
+    public static DefaultTableModel getTableModel(){
+        DefaultTableModel tm = new DefaultTableModel();
+        tm.addColumn("Codigo");
+        tm.addColumn("Nome");
+        tm.addColumn("CNPJ");
+        tm.addColumn("Telefone");
+        tm.addColumn("Email");
+        FornecedorDAO dao = new FornecedorDAO();
+        for (Fornecedor c: dao.selectAll()){
+            String[] item = new String[] {String.valueOf(c.getCodigo()),c.getNome(),c.getCnpj(),c.getTelefone(),c.getEmail()};
+            tm.addRow(item);
+        }
+        return tm;
     }
 
     @Override

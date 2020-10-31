@@ -1,17 +1,87 @@
-
 package view;
 
 import java.awt.CardLayout;
+import model.Cliente;
+import model.Fornecedor;
+import model.Produto;
 
 public class Tela extends javax.swing.JFrame {
 
-    CardLayout cl;
-    
+    String painel;
+
     public Tela() {
         initComponents();
+        setLocationRelativeTo(null);
         setTitle("Sistema de Controle de Estoque");
-        cl = (CardLayout)(pnCentral.getLayout());
-        cl.show(pnCentral,"Produtos");    
+        mostraPainel("Clientes");
+        limpaTelaCliente();
+    }
+    
+      private void mostraPainel(String pn) {
+        CardLayout cl = (CardLayout) (pnCentral.getLayout());
+        cl.show(pnCentral, pn);
+        painel = pn;
+    }
+
+    private void limpaTelaCliente() {
+        tfNome.setText("");
+        tfCPF.setText("");
+        tfCelular.setText("");
+        tfEmail.setText("");
+        tfNome.requestFocus();
+    }
+
+    private void limpaTelaProduto() {
+        tfDescricao.setText("");
+        tfQtde.setText("");
+        tfCustoMedio.setText("");
+        tfDescricao.requestFocus();
+    }
+
+    private void limpaTelaFornecedor() {
+        tfCNPJ.setText("");
+        tfNomeFornecedor.setText("");
+        tfTelefone.setText("");
+        tfEmailFornecedor.setText("");
+        tfCNPJ.requestFocus();
+    }
+
+    private void gravaCliente() {
+        String nome = tfNome.getText();
+        String cpf = tfCPF.getText();
+        String celular = tfCelular.getText();
+        String email = tfEmail.getText();
+        new Cliente(cpf, nome, celular, email).gravarCliente();
+        limpaTelaCliente();
+    }
+
+    private void gravaProduto() {
+        String descricao = tfDescricao.getText();
+        int qtde = Integer.parseInt(tfQtde.getText());
+        double custoMedio = Double.parseDouble(tfCustoMedio.getText());
+        new Produto(descricao, qtde, custoMedio).gravarProduto();
+        limpaTelaProduto();
+    }
+
+    private void gravaFornecedor() {
+        String cnpj = tfCNPJ.getText();
+        String nome = tfNomeFornecedor.getText();
+        String telefone = tfTelefone.getText();
+        String email = tfEmailFornecedor.getText();
+        new Fornecedor(cnpj, nome, telefone, email).gravarFornecedor();
+        limpaTelaFornecedor();
+    }
+    
+    private void listaCliente() {
+        new TLista(Cliente.getTableModel()).setVisible(true);
+    }
+    
+    private void listaProduto(){
+        new TLista(Produto.getTableModel()).setVisible(true);
+    }
+    
+    private void listaFornecedor(){
+        new TLista(Fornecedor.getTableModel()).setVisible(true);
     }
 
     /**
@@ -30,7 +100,7 @@ public class Tela extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        btCancelar = new javax.swing.JButton();
+        btListar = new javax.swing.JButton();
         btSalvar = new javax.swing.JButton();
         btLimpar = new javax.swing.JButton();
         pnMenu = new javax.swing.JPanel();
@@ -42,13 +112,11 @@ public class Tela extends javax.swing.JFrame {
         pnCentral = new javax.swing.JPanel();
         pnProdutos = new javax.swing.JPanel();
         lbProdutos = new javax.swing.JLabel();
-        lbCodigoProdutos = new javax.swing.JLabel();
         lbDescricao = new javax.swing.JLabel();
         lbQuantidade = new javax.swing.JLabel();
         lbCustoMedio = new javax.swing.JLabel();
         tfQtde = new javax.swing.JTextField();
         tfCustoMedio = new javax.swing.JTextField();
-        tfCodigoProdutos = new javax.swing.JTextField();
         tfDescricao = new javax.swing.JTextField();
         pnClientes = new javax.swing.JPanel();
         lbClientes = new javax.swing.JLabel();
@@ -62,14 +130,12 @@ public class Tela extends javax.swing.JFrame {
         tfCelular = new javax.swing.JTextField();
         pnFornecedores = new javax.swing.JPanel();
         lbFornecedores = new javax.swing.JLabel();
-        lbCodigoFornecedores = new javax.swing.JLabel();
         lbCNPJ = new javax.swing.JLabel();
         lbNomeFornecedor = new javax.swing.JLabel();
         lbTelefone = new javax.swing.JLabel();
         lbEmailFornecedor = new javax.swing.JLabel();
         tfNomeFornecedor = new javax.swing.JTextField();
         tfTelefone = new javax.swing.JTextField();
-        tfCodigoFornecedores = new javax.swing.JTextField();
         tfCNPJ = new javax.swing.JTextField();
         tfEmailFornecedor = new javax.swing.JTextField();
         pnEntradas = new javax.swing.JPanel();
@@ -93,7 +159,7 @@ public class Tela extends javax.swing.JFrame {
         lbTitulo.setForeground(new java.awt.Color(178, 251, 1));
         lbTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbTitulo.setText("Kardex");
-        pnTitulo.add(lbTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(114, 0, 640, 60));
+        pnTitulo.add(lbTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 0, 750, 60));
 
         getContentPane().add(pnTitulo, java.awt.BorderLayout.NORTH);
 
@@ -104,16 +170,37 @@ public class Tela extends javax.swing.JFrame {
         pnBotoes.add(jLabel2);
         pnBotoes.add(jLabel3);
 
-        btCancelar.setText("Cancelar");
-        btCancelar.setContentAreaFilled(false);
-        pnBotoes.add(btCancelar);
+        btListar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btListar.setForeground(new java.awt.Color(178, 251, 1));
+        btListar.setText("Listar");
+        btListar.setContentAreaFilled(false);
+        btListar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btListarActionPerformed(evt);
+            }
+        });
+        pnBotoes.add(btListar);
 
+        btSalvar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btSalvar.setForeground(new java.awt.Color(178, 251, 1));
         btSalvar.setText("Salvar");
         btSalvar.setContentAreaFilled(false);
+        btSalvar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSalvarActionPerformed(evt);
+            }
+        });
         pnBotoes.add(btSalvar);
 
+        btLimpar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btLimpar.setForeground(new java.awt.Color(178, 251, 1));
         btLimpar.setText("Limpar");
         btLimpar.setContentAreaFilled(false);
+        btLimpar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btLimparActionPerformed(evt);
+            }
+        });
         pnBotoes.add(btLimpar);
 
         getContentPane().add(pnBotoes, java.awt.BorderLayout.SOUTH);
@@ -122,11 +209,15 @@ public class Tela extends javax.swing.JFrame {
         pnMenu.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         pnMenu.setLayout(new java.awt.GridLayout(0, 1));
 
+        btClientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btClientes.setForeground(new java.awt.Color(178, 251, 1));
         btClientes.setText("Clientes");
+        btClientes.setBorderPainted(false);
         btClientes.setContentAreaFilled(false);
         btClientes.setMaximumSize(new java.awt.Dimension(109, 32));
         btClientes.setMinimumSize(new java.awt.Dimension(109, 32));
         btClientes.setPreferredSize(new java.awt.Dimension(109, 32));
+        btClientes.setRolloverEnabled(true);
         btClientes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btClientesActionPerformed(evt);
@@ -134,7 +225,10 @@ public class Tela extends javax.swing.JFrame {
         });
         pnMenu.add(btClientes);
 
+        btFornecedores.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btFornecedores.setForeground(new java.awt.Color(178, 251, 1));
         btFornecedores.setText("Fornecedores");
+        btFornecedores.setBorderPainted(false);
         btFornecedores.setContentAreaFilled(false);
         btFornecedores.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -143,7 +237,10 @@ public class Tela extends javax.swing.JFrame {
         });
         pnMenu.add(btFornecedores);
 
+        btProdutos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btProdutos.setForeground(new java.awt.Color(178, 251, 1));
         btProdutos.setText("Produtos");
+        btProdutos.setBorderPainted(false);
         btProdutos.setContentAreaFilled(false);
         btProdutos.setMaximumSize(new java.awt.Dimension(109, 32));
         btProdutos.setMinimumSize(new java.awt.Dimension(109, 32));
@@ -155,14 +252,20 @@ public class Tela extends javax.swing.JFrame {
         });
         pnMenu.add(btProdutos);
 
+        btEntradas.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btEntradas.setForeground(new java.awt.Color(178, 251, 1));
         btEntradas.setText("Entradas");
+        btEntradas.setBorderPainted(false);
         btEntradas.setContentAreaFilled(false);
         btEntradas.setMaximumSize(new java.awt.Dimension(109, 32));
         btEntradas.setMinimumSize(new java.awt.Dimension(109, 32));
         btEntradas.setPreferredSize(new java.awt.Dimension(109, 32));
         pnMenu.add(btEntradas);
 
+        btSaidas.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btSaidas.setForeground(new java.awt.Color(178, 251, 1));
         btSaidas.setText("Saidas");
+        btSaidas.setBorderPainted(false);
         btSaidas.setContentAreaFilled(false);
         btSaidas.setMaximumSize(new java.awt.Dimension(109, 32));
         btSaidas.setMinimumSize(new java.awt.Dimension(109, 32));
@@ -181,10 +284,6 @@ public class Tela extends javax.swing.JFrame {
         lbProdutos.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbProdutos.setText("Produtos");
 
-        lbCodigoProdutos.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        lbCodigoProdutos.setForeground(new java.awt.Color(0, 0, 0));
-        lbCodigoProdutos.setText("Codigo:");
-
         lbDescricao.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         lbDescricao.setForeground(new java.awt.Color(0, 0, 0));
         lbDescricao.setText("Descrição:");
@@ -201,8 +300,6 @@ public class Tela extends javax.swing.JFrame {
 
         tfCustoMedio.setPreferredSize(new java.awt.Dimension(14, 32));
 
-        tfCodigoProdutos.setPreferredSize(new java.awt.Dimension(14, 32));
-
         tfDescricao.setPreferredSize(new java.awt.Dimension(14, 32));
 
         javax.swing.GroupLayout pnProdutosLayout = new javax.swing.GroupLayout(pnProdutos);
@@ -210,47 +307,41 @@ public class Tela extends javax.swing.JFrame {
         pnProdutosLayout.setHorizontalGroup(
             pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnProdutosLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lbProdutos, javax.swing.GroupLayout.DEFAULT_SIZE, 637, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(pnProdutosLayout.createSequentialGroup()
-                .addGap(102, 102, 102)
-                .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lbCodigoProdutos)
-                    .addComponent(lbDescricao)
-                    .addComponent(lbQuantidade)
-                    .addComponent(lbCustoMedio))
-                .addGap(23, 23, 23)
                 .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(tfCustoMedio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(tfQtde, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(tfDescricao, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
-                    .addComponent(tfCodigoProdutos, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(pnProdutosLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbProdutos, javax.swing.GroupLayout.DEFAULT_SIZE, 616, Short.MAX_VALUE))
+                    .addGroup(pnProdutosLayout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lbDescricao)
+                            .addComponent(lbQuantidade)
+                            .addComponent(lbCustoMedio))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tfDescricao, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfQtde, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tfCustoMedio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
         pnProdutosLayout.setVerticalGroup(
             pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnProdutosLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lbProdutos, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbCodigoProdutos)
-                    .addComponent(tfCodigoProdutos, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(42, 42, 42)
                 .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbDescricao)
                     .addComponent(tfDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(13, 13, 13)
+                .addGap(27, 27, 27)
                 .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbQuantidade)
                     .addComponent(tfQtde, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(28, 28, 28)
                 .addGroup(pnProdutosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbCustoMedio)
                     .addComponent(tfCustoMedio, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(73, Short.MAX_VALUE))
+                .addContainerGap(102, Short.MAX_VALUE))
         );
 
         pnCentral.add(pnProdutos, "Produtos");
@@ -286,7 +377,7 @@ public class Tela extends javax.swing.JFrame {
             pnClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(lbClientes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(pnClientesLayout.createSequentialGroup()
-                .addContainerGap(130, Short.MAX_VALUE)
+                .addContainerGap(119, Short.MAX_VALUE)
                 .addGroup(pnClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lbEmail)
                     .addComponent(lbNome)
@@ -298,7 +389,7 @@ public class Tela extends javax.swing.JFrame {
                     .addComponent(tfCPF)
                     .addComponent(tfCelular)
                     .addComponent(tfEmail))
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addContainerGap(59, Short.MAX_VALUE))
         );
         pnClientesLayout.setVerticalGroup(
             pnClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -332,10 +423,6 @@ public class Tela extends javax.swing.JFrame {
         lbFornecedores.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbFornecedores.setText("Fornecedores");
 
-        lbCodigoFornecedores.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        lbCodigoFornecedores.setForeground(new java.awt.Color(0, 0, 0));
-        lbCodigoFornecedores.setText("Codigo:");
-
         lbCNPJ.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         lbCNPJ.setForeground(new java.awt.Color(0, 0, 0));
         lbCNPJ.setText("CNPJ:");
@@ -356,8 +443,6 @@ public class Tela extends javax.swing.JFrame {
 
         tfTelefone.setPreferredSize(new java.awt.Dimension(14, 32));
 
-        tfCodigoFornecedores.setPreferredSize(new java.awt.Dimension(14, 32));
-
         tfCNPJ.setPreferredSize(new java.awt.Dimension(14, 32));
 
         tfEmailFornecedor.setPreferredSize(new java.awt.Dimension(14, 32));
@@ -366,53 +451,48 @@ public class Tela extends javax.swing.JFrame {
         pnFornecedores.setLayout(pnFornecedoresLayout);
         pnFornecedoresLayout.setHorizontalGroup(
             pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lbFornecedores, javax.swing.GroupLayout.DEFAULT_SIZE, 649, Short.MAX_VALUE)
+            .addComponent(lbFornecedores, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
             .addGroup(pnFornecedoresLayout.createSequentialGroup()
-                .addGap(120, 120, 120)
-                .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lbCNPJ)
-                            .addComponent(lbCodigoFornecedores)
-                            .addComponent(lbNomeFornecedor))
-                        .addComponent(lbEmailFornecedor, javax.swing.GroupLayout.Alignment.LEADING))
+                .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnFornecedoresLayout.createSequentialGroup()
-                        .addComponent(lbTelefone)
-                        .addGap(4, 4, 4)))
+                        .addGap(124, 124, 124)
+                        .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lbCNPJ)
+                            .addComponent(lbTelefone)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnFornecedoresLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbNomeFornecedor, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lbEmailFornecedor, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addGap(27, 27, 27)
                 .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(tfCNPJ, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
                     .addComponent(tfNomeFornecedor, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tfEmailFornecedor, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tfTelefone, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tfCodigoFornecedores, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(tfTelefone, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         pnFornecedoresLayout.setVerticalGroup(
             pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnFornecedoresLayout.createSequentialGroup()
                 .addComponent(lbFornecedores, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
+                .addGap(34, 34, 34)
                 .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfCodigoFornecedores, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbCodigoFornecedores))
-                .addGap(14, 14, 14)
+                    .addComponent(lbCNPJ)
+                    .addComponent(tfCNPJ, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
                 .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfCNPJ, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbCNPJ))
-                .addGap(18, 18, 18)
+                    .addComponent(lbNomeFornecedor)
+                    .addComponent(tfNomeFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
                 .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfNomeFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbNomeFornecedor))
-                .addGap(18, 18, 18)
+                    .addComponent(lbTelefone)
+                    .addComponent(tfTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
                 .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbTelefone))
-                .addGap(18, 18, 18)
-                .addGroup(pnFornecedoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfEmailFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbEmailFornecedor))
-                .addGap(0, 53, Short.MAX_VALUE))
+                    .addComponent(lbEmailFornecedor)
+                    .addComponent(tfEmailFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 64, Short.MAX_VALUE))
         );
 
         pnCentral.add(pnFornecedores, "Fornecedores");
@@ -428,7 +508,7 @@ public class Tela extends javax.swing.JFrame {
         pnEntradas.setLayout(pnEntradasLayout);
         pnEntradasLayout.setHorizontalGroup(
             pnEntradasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lbEntradas, javax.swing.GroupLayout.DEFAULT_SIZE, 649, Short.MAX_VALUE)
+            .addComponent(lbEntradas, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
         );
         pnEntradasLayout.setVerticalGroup(
             pnEntradasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -450,7 +530,7 @@ public class Tela extends javax.swing.JFrame {
         pnSaidas.setLayout(pnSaidasLayout);
         pnSaidasLayout.setHorizontalGroup(
             pnSaidasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lbSaidas, javax.swing.GroupLayout.DEFAULT_SIZE, 649, Short.MAX_VALUE)
+            .addComponent(lbSaidas, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
         );
         pnSaidasLayout.setVerticalGroup(
             pnSaidasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -467,16 +547,46 @@ public class Tela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btProdutosActionPerformed
-        cl.show(pnCentral,"Produtos");
+        mostraPainel("Produtos");
     }//GEN-LAST:event_btProdutosActionPerformed
 
     private void btClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btClientesActionPerformed
-        cl.show(pnCentral,"Clientes");
+        mostraPainel("Clientes");
     }//GEN-LAST:event_btClientesActionPerformed
 
     private void btFornecedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFornecedoresActionPerformed
-        cl.show(pnCentral,"Fornecedores");
+        mostraPainel("Fornecedores");
     }//GEN-LAST:event_btFornecedoresActionPerformed
+
+    private void btSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSalvarActionPerformed
+        if (painel.equals("Clientes")) {
+            gravaCliente();
+        } else if (painel.equals("Fornecedores")) {
+            gravaFornecedor();
+        } else if (painel.equals("Produtos")) {
+            gravaProduto();
+        }
+    }//GEN-LAST:event_btSalvarActionPerformed
+
+    private void btLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLimparActionPerformed
+        if (painel.equals("Clientes")) {
+            limpaTelaCliente();
+        } else if (painel.equals("Fornecedores")) {
+            limpaTelaFornecedor();
+        } else if (painel.equals("Produtos")) {
+            limpaTelaProduto();
+        }
+    }//GEN-LAST:event_btLimparActionPerformed
+
+    private void btListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btListarActionPerformed
+         if (painel.equals("Clientes")) {
+            listaCliente();
+        } else if (painel.equals("Fornecedores")) {
+            listaFornecedor();
+        } else if (painel.equals("Produtos")) {
+            listaProduto();
+        }
+    }//GEN-LAST:event_btListarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -514,11 +624,11 @@ public class Tela extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btCancelar;
     private javax.swing.JButton btClientes;
     private javax.swing.JButton btEntradas;
     private javax.swing.JButton btFornecedores;
     private javax.swing.JButton btLimpar;
+    private javax.swing.JButton btListar;
     private javax.swing.JButton btProdutos;
     private javax.swing.JButton btSaidas;
     private javax.swing.JButton btSalvar;
@@ -529,8 +639,6 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JLabel lbCPF;
     private javax.swing.JLabel lbCelular;
     private javax.swing.JLabel lbClientes;
-    private javax.swing.JLabel lbCodigoFornecedores;
-    private javax.swing.JLabel lbCodigoProdutos;
     private javax.swing.JLabel lbCustoMedio;
     private javax.swing.JLabel lbDescricao;
     private javax.swing.JLabel lbEmail;
@@ -557,8 +665,6 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JTextField tfCNPJ;
     private javax.swing.JTextField tfCPF;
     private javax.swing.JTextField tfCelular;
-    private javax.swing.JTextField tfCodigoFornecedores;
-    private javax.swing.JTextField tfCodigoProdutos;
     private javax.swing.JTextField tfCustoMedio;
     private javax.swing.JTextField tfDescricao;
     private javax.swing.JTextField tfEmail;

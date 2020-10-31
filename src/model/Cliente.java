@@ -1,7 +1,13 @@
 
 package model;
 
+import dao.ClienteDAO;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+
 public class Cliente {
+
+    
     
     private int codigo = 0;
     private String cpf;
@@ -10,12 +16,23 @@ public class Cliente {
     private String email;
 
     public Cliente(String cpf, String nome, String celular, String email) {
+         this(0,cpf,nome,celular,email);
+    }
+    
+    public Cliente(int codigo, String cpf, String nome, String celular, String email) {
+        setCodigo(codigo);
         setCpf(cpf);
         setNome(nome);
         setCelular(celular);
         setEmail(email);
     }
     
+    public int gravarCliente(){
+        ClienteDAO dao = new ClienteDAO();
+        int id = dao.insert(this);
+        setCodigo(id);
+        return (id);
+    }
     
 
     public int getCodigo() {
@@ -58,6 +75,21 @@ public class Cliente {
         this.email = email;
     }
 
+    public static DefaultTableModel getTableModel(){
+        DefaultTableModel tm = new DefaultTableModel();
+        tm.addColumn("Codigo");
+        tm.addColumn("Nome");
+        tm.addColumn("CPF");
+        tm.addColumn("Celular");
+        tm.addColumn("Email");
+        ClienteDAO dao = new ClienteDAO();
+        for (Cliente c: dao.selectAll()){
+            String[] item = new String[] {String.valueOf(c.getCodigo()),c.getNome(),c.getCpf(),c.getCelular(),c.getEmail()};
+            tm.addRow(item);
+        }
+        return tm;
+    }
+    
     @Override
     public String toString() {
         return "Cliente{" + "codigo=" + codigo + ", nome=" + nome + '}';

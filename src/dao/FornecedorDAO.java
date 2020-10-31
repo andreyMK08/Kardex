@@ -12,30 +12,30 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Cliente;
+import model.Fornecedor;
 
 /**
  *
  * @author andre_000
  */
-public class ClienteDAO {
-
+public class FornecedorDAO {
+    
     private Connection con = null;
     private PreparedStatement pst = null;
     private ResultSet rs = null;
 
-    public int insert(Cliente reg) {
+    public int insert(Fornecedor reg) {
         int codigo = 0;
         StringBuilder sql = new StringBuilder();
-        sql.append("INSERT INTO Cliente ");
-        sql.append("(CPF,Nome,Celular,Email) ");
+        sql.append("INSERT INTO Fornecedor ");
+        sql.append("(CNPJ,Nome,Telefone,Email) ");
         sql.append("VALUES(?,?,?,?)");
         try {
             con = ConnectionFactory.getConnection();
             pst = con.prepareStatement(sql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
-            pst.setString(1, reg.getCpf());
+            pst.setString(1, reg.getCnpj());
             pst.setString(2, reg.getNome());
-            pst.setString(3, reg.getCelular());
+            pst.setString(3, reg.getTelefone());
             pst.setString(4, reg.getEmail());
             pst.executeUpdate();
             rs = pst.getGeneratedKeys();
@@ -51,27 +51,27 @@ public class ClienteDAO {
 
     }
     
-    public List<Cliente> selectAll(){
+    public List<Fornecedor> selectAll(){
         return (selectAll("Nome"));
     }
     
-    public List<Cliente> selectAll(String ordem){
-        List<Cliente> lista = new ArrayList<Cliente>();
+     public List<Fornecedor> selectAll(String ordem){
+        List<Fornecedor> lista = new ArrayList<Fornecedor>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT Codigo,CPF,Nome,Celular,Email FROM Cliente ");
+        sql.append("SELECT Codigo,Nome,CNPJ,Telefone,Email FROM Fornecedor ");
         sql.append("ORDER BY ? ");
         try {
             con = ConnectionFactory.getConnection();
             pst = con.prepareStatement(sql.toString());
-            pst.setString(1,ordem);
+            pst.setString(1, ordem);
             rs = pst.executeQuery();
             while (rs.next()) {
                 int rsCodigo = rs.getInt("Codigo");
-                String rsCPF = rs.getString("CPF");
                 String rsNome = rs.getString("Nome");
-                String rsCelular = rs.getString("Celular");
+                String rsCNPJ = rs.getString("CNPJ");
+                String rsTelefone = rs.getString("Telefone");
                 String rsEmail = rs.getString("Email");
-                Cliente c = new Cliente(rsCodigo,rsCPF,rsNome,rsCelular,rsEmail);
+                Fornecedor c = new Fornecedor(rsCodigo,rsCNPJ,rsNome,rsTelefone,rsEmail);
                 lista.add(c);
             }
         } catch (SQLException ex) {
@@ -81,4 +81,5 @@ public class ClienteDAO {
         }
         return lista;
     }
+    
 }
